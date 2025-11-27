@@ -1,0 +1,57 @@
+{
+    "kind": "collectionType",
+    "collectionName": "enrollments",
+    "info": {
+        "singularName": "enrollment",
+        "pluralName": "enrollments",
+        "displayName": "Enrollment",
+        "description": "Student enrollments"
+    },
+    "options": {
+        "draftAndPublish": false
+    },
+    "pluginOptions": {},
+    "attributes": {
+        "externalUserId": {
+            "type": "string",
+            "required": true
+        },
+        "status": {
+            "type": "enumeration",
+            "enum": [
+                "active",
+                "expired",
+                "cancelled"
+            ]
+        },
+        "enrolledAt": {
+            "type": "datetime"
+        },
+        "expiresAt": {
+            "type": "datetime"
+        },
+        "paymentProvider": {
+            "type": "enumeration",
+            "enum": [
+                "stripe",
+                "mercadopago"
+            ]
+        },
+        "paymentId": {
+            "type": "string"
+        },
+        "paymentAmount": {
+            "type": "decimal"
+        },
+        "paymentCurrency": {
+            "type": "string",
+            "default": "USD"
+        },
+        "course": {
+            "type": "relation",
+            "relation": "manyToOne",
+            "target": "api::course.course",
+            "inversedBy": "enrollments"
+        }
+    }
+}
