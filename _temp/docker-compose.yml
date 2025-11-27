@@ -1,0 +1,17 @@
+version: '3'
+services:
+  cine_strapi_db:
+    container_name: cine_strapi_db
+    image: postgres:14-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: cine_strapi_cms
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+    volumes:
+      - cine_strapi_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+volumes:
+  cine_strapi_data:
