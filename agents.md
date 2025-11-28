@@ -13,19 +13,7 @@ Plataforma de cursos online "Cine". Este repositorio contiene el backend CMS (St
   - **Instructores**: Autenticación nativa de Strapi.
   - **Alumnos**: Autenticación externa (NextAuth v5) en el FE. Strapi solo guarda referencia `externalUserId`.
 
-## Tech Stack
-- **Framework**: Strapi v5
-- **Language**: TypeScript
-- **Database**: PostgreSQL
-- **Infrastructure**: Docker (para DB local)
-- **Payments**: Stripe & MercadoPago (futura integración)
-
-## Estructura de Datos (Core)
-- **Course**: Entidad principal.
-- **Module**: Agrupador de lecciones.
-- **Lesson**: Contenido educativo (Video URL + Rich Text).
-- **Instructor**: Creador del contenido.
-- **Enrollment**: Registro de acceso de un alumno a un curso.
+- **SocialLink** (shared.social-link): Enlaces sociales del instructor
 
 ## Gestión de Usuarios (Instructores)
 **Estrategia MVP**:
@@ -74,8 +62,56 @@ Plataforma de cursos online "Cine". Este repositorio contiene el backend CMS (St
 - **Media**: Videos hosteados externamente (YouTube/Vimeo). Imágenes en Strapi.
 - **Validation**: Endpoint custom `/api/validate-access` para verificar permisos de alumnos.
 
+## Configuración de Desarrollo Local
+
+### Requisitos Previos
+1. **Docker Desktop**: Debe estar instalado y corriendo antes de iniciar el proyecto.
+2. **Node.js**: Versión compatible con Strapi v5.
+
+### Flujo de Inicio del Proyecto
+
+**⚠️ IMPORTANTE**: PostgreSQL corre en un contenedor Docker (`cine_strapi_db`), NO como servicio de Windows.
+
+#### Paso 1: Iniciar Docker Desktop
+- Abrir Docker Desktop desde el menú de inicio de Windows
+- Esperar a que el ícono de Docker en la barra de tareas esté activo (deja de parpadear)
+
+#### Paso 2: Iniciar Base de Datos PostgreSQL
+```powershell
+docker-compose up -d
+```
+Esto inicia el contenedor `cine_strapi_db` en segundo plano.
+
+#### Paso 3: Verificar que la Base de Datos está Corriendo
+```powershell
+docker ps
+```
+Deberías ver el contenedor `cine_strapi_db` con status "Up".
+
+#### Paso 4: Iniciar Strapi
+```powershell
+npm run develop
+```
+
+### Troubleshooting
+
+#### Error: `ECONNREFUSED 127.0.0.1:5432`
+**Causa**: PostgreSQL no está corriendo.
+**Solución**: 
+1. Verificar que Docker Desktop esté corriendo
+2. Ejecutar `docker-compose up -d`
+3. Verificar con `docker ps` que el contenedor esté activo
+
+#### Detener la Base de Datos
+```powershell
+docker-compose down
+```
+**Nota**: Los datos persisten en el volumen Docker `cine_strapi_data`, no se pierden al detener el contenedor.
+
 ## Comandos Comunes
 - `npm run develop`: Iniciar servidor en modo desarrollo (con auto-reload).
 - `npm run build`: Construir admin panel.
 - `npm run start`: Iniciar servidor producción.
-- `docker-compose up -d`: Iniciar base de datos.
+- `docker-compose up -d`: Iniciar base de datos PostgreSQL.
+- `docker-compose down`: Detener base de datos.
+- `docker ps`: Verificar contenedores activos.

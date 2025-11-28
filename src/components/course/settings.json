@@ -1,0 +1,36 @@
+{
+    "collectionName": "components_course_settings",
+    "info": {
+        "displayName": "Course Settings",
+        "icon": "cog",
+        "description": "Course visibility and configuration settings"
+    },
+    "options": {},
+    "attributes": {
+        "visible": {
+            "type": "boolean",
+            "default": true
+        },
+        "featured": {
+            "type": "boolean",
+            "default": false
+        },
+        "language": {
+            "type": "enumeration",
+            "enum": [
+                "es",
+                "en",
+                "pt"
+            ],
+            "default": "es"
+        },
+        "releaseDate": {
+            "type": "datetime"
+        },
+        "seo": {
+            "type": "component",
+            "repeatable": false,
+            "component": "shared.seo-metadata"
+        }
+    }
+}

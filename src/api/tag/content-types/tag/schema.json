@@ -1,14 +1,14 @@
 {
     "kind": "collectionType",
-    "collectionName": "categories",
+    "collectionName": "tags",
     "info": {
-        "singularName": "category",
-        "pluralName": "categories",
-        "displayName": "Category",
-        "description": "Course categories"
+        "singularName": "tag",
+        "pluralName": "tags",
+        "displayName": "Tag",
+        "description": "Course tags for categorization"
     },
     "options": {
-        "draftAndPublish": true
+        "draftAndPublish": false
     },
     "pluginOptions": {},
     "attributes": {
@@ -24,9 +24,6 @@
         "description": {
             "type": "text"
         },
-        "icon": {
-            "type": "string"
-        },
         "color": {
             "type": "string"
         },
@@ -34,7 +31,7 @@
             "type": "relation",
             "relation": "manyToMany",
             "target": "api::course.course",
-            "mappedBy": "categories"
+            "mappedBy": "tags"
         }
     }
 }

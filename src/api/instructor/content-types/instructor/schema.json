@@ -12,14 +12,6 @@
   },
   "pluginOptions": {},
   "attributes": {
-    "avatar": {
-      "type": "media",
-      "multiple": false,
-      "required": false,
-      "allowedTypes": [
-        "images"
-      ]
-    },
     "name": {
       "type": "string",
       "required": true
@@ -31,9 +23,22 @@
     "bio": {
       "type": "richtext"
     },
+    "avatar": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images"
+      ]
+    },
     "email": {
       "type": "email",
       "unique": true
+    },
+    "socialLinks": {
+      "type": "component",
+      "repeatable": true,
+      "component": "shared.social-link"
     },
     "courses": {
       "type": "relation",

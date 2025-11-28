@@ -26,12 +26,11 @@ export default {
       const permissions = [
         'api::course.course.find',
         'api::course.course.findOne',
-        'api::category.category.find',
-        'api::category.category.findOne',
         'api::instructor.instructor.find',
         'api::instructor.instructor.findOne',
         'api::enrollment.enrollment.validateAccess', // Custom endpoint
       ];
+
 
       await Promise.all(
         permissions.map(async (action) => {

@@ -430,46 +430,10 @@ export interface AdminUser extends Struct.CollectionTypeSchema {
   };
 }
 
-export interface ApiCategoryCategory extends Struct.CollectionTypeSchema {
-  collectionName: 'categories';
-  info: {
-    description: 'Course categories';
-    displayName: 'Category';
-    pluralName: 'categories';
-    singularName: 'category';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    color: Schema.Attribute.String;
-    courses: Schema.Attribute.Relation<'manyToMany', 'api::course.course'>;
-    createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    description: Schema.Attribute.Text;
-    icon: Schema.Attribute.String;
-    locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::category.category'
-    > &
-      Schema.Attribute.Private;
-    name: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.Unique;
-    publishedAt: Schema.Attribute.DateTime;
-    slug: Schema.Attribute.UID<'name'>;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-  };
-}
-
 export interface ApiCourseCourse extends Struct.CollectionTypeSchema {
   collectionName: 'courses';
   info: {
-    description: 'Courses catalog';
+    description: 'Online courses';
     displayName: 'Course';
     pluralName: 'courses';
     singularName: 'course';
@@ -478,19 +442,22 @@ export interface ApiCourseCourse extends Struct.CollectionTypeSchema {
     draftAndPublish: true;
   };
   attributes: {
-    categories: Schema.Attribute.Relation<
-      'manyToMany',
-      'api::category.category'
-    >;
+    coverImage: Schema.Attribute.Media<'images'>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
-    description: Schema.Attribute.RichText;
-    duration: Schema.Attribute.Integer;
     enrollments: Schema.Attribute.Relation<
       'oneToMany',
       'api::enrollment.enrollment'
     >;
+    estimatedDuration: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      >;
+    fullDescription: Schema.Attribute.RichText;
     instructor: Schema.Attribute.Relation<
       'manyToOne',
       'api::instructor.instructor'
@@ -504,15 +471,29 @@ export interface ApiCourseCourse extends Struct.CollectionTypeSchema {
       'api::course.course'
     > &
       Schema.Attribute.Private;
-    modules: Schema.Attribute.Relation<'oneToMany', 'api::module.module'>;
-    price: Schema.Attribute.Decimal;
+    modules: Schema.Attribute.Component<'course.module', true>;
+    priceArg: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      >;
+    priceUsd: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      >;
     publishedAt: Schema.Attribute.DateTime;
+    settings: Schema.Attribute.Component<'course.settings', false>;
     shortDescription: Schema.Attribute.Text &
       Schema.Attribute.SetMinMaxLength<{
         maxLength: 200;
       }>;
     slug: Schema.Attribute.UID<'title'>;
-    thumbnail: Schema.Attribute.Media<'images'>;
+    tags: Schema.Attribute.Relation<'manyToMany', 'api::tag.tag'>;
     title: Schema.Attribute.String & Schema.Attribute.Required;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
@@ -586,6 +567,7 @@ export interface ApiInstructorInstructor extends Struct.CollectionTypeSchema {
     name: Schema.Attribute.String & Schema.Attribute.Required;
     publishedAt: Schema.Attribute.DateTime;
     slug: Schema.Attribute.UID<'name'>;
+    socialLinks: Schema.Attribute.Component<'shared.social-link', true>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -594,72 +576,32 @@ export interface ApiInstructorInstructor extends Struct.CollectionTypeSchema {
   };
 }
 
-export interface ApiLessonLesson extends Struct.CollectionTypeSchema {
-  collectionName: 'lessons';
+export interface ApiTagTag extends Struct.CollectionTypeSchema {
+  collectionName: 'tags';
   info: {
-    description: 'Course lessons';
-    displayName: 'Lesson';
-    pluralName: 'lessons';
-    singularName: 'lesson';
+    description: 'Course tags for categorization';
+    displayName: 'Tag';
+    pluralName: 'tags';
+    singularName: 'tag';
   };
   options: {
-    draftAndPublish: true;
+    draftAndPublish: false;
   };
   attributes: {
-    attachments: Schema.Attribute.Media<
-      'files' | 'images' | 'videos' | 'audios',
-      true
-    >;
-    content: Schema.Attribute.RichText;
-    createdAt: Schema.Attribute.DateTime;
-    createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    duration: Schema.Attribute.Integer;
-    isPreview: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
-    locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::lesson.lesson'
-    > &
-      Schema.Attribute.Private;
-    module: Schema.Attribute.Relation<'manyToOne', 'api::module.module'>;
-    order: Schema.Attribute.Integer & Schema.Attribute.Required;
-    publishedAt: Schema.Attribute.DateTime;
-    title: Schema.Attribute.String & Schema.Attribute.Required;
-    updatedAt: Schema.Attribute.DateTime;
-    updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
-      Schema.Attribute.Private;
-    videoUrl: Schema.Attribute.String;
-  };
-}
-
-export interface ApiModuleModule extends Struct.CollectionTypeSchema {
-  collectionName: 'modules';
-  info: {
-    description: 'Course modules';
-    displayName: 'Module';
-    pluralName: 'modules';
-    singularName: 'module';
-  };
-  options: {
-    draftAndPublish: true;
-  };
-  attributes: {
-    course: Schema.Attribute.Relation<'manyToOne', 'api::course.course'>;
+    color: Schema.Attribute.String;
+    courses: Schema.Attribute.Relation<'manyToMany', 'api::course.course'>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
     description: Schema.Attribute.Text;
-    lessons: Schema.Attribute.Relation<'oneToMany', 'api::lesson.lesson'>;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
-    localizations: Schema.Attribute.Relation<
-      'oneToMany',
-      'api::module.module'
-    > &
+    localizations: Schema.Attribute.Relation<'oneToMany', 'api::tag.tag'> &
       Schema.Attribute.Private;
-    order: Schema.Attribute.Integer & Schema.Attribute.Required;
+    name: Schema.Attribute.String &
+      Schema.Attribute.Required &
+      Schema.Attribute.Unique;
     publishedAt: Schema.Attribute.DateTime;
-    title: Schema.Attribute.String & Schema.Attribute.Required;
+    slug: Schema.Attribute.UID<'name'>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -1176,12 +1118,10 @@ declare module '@strapi/strapi' {
       'admin::transfer-token': AdminTransferToken;
       'admin::transfer-token-permission': AdminTransferTokenPermission;
       'admin::user': AdminUser;
-      'api::category.category': ApiCategoryCategory;
       'api::course.course': ApiCourseCourse;
       'api::enrollment.enrollment': ApiEnrollmentEnrollment;
       'api::instructor.instructor': ApiInstructorInstructor;
-      'api::lesson.lesson': ApiLessonLesson;
-      'api::module.module': ApiModuleModule;
+      'api::tag.tag': ApiTagTag;
       'plugin::content-releases.release': PluginContentReleasesRelease;
       'plugin::content-releases.release-action': PluginContentReleasesReleaseAction;
       'plugin::i18n.locale': PluginI18NLocale;

@@ -2,6 +2,43 @@
 
 Strapi comes with a full featured [Command Line Interface](https://docs.strapi.io/dev-docs/cli) (CLI) which lets you scaffold and manage your project in seconds.
 
+## ⚡ Prerequisites
+
+Before running the Strapi server, you need to start the PostgreSQL database using Docker.
+
+### 1. Start Docker Desktop
+
+Make sure Docker Desktop is running on your machine. You can start it from the Windows Start menu.
+
+### 2. Start PostgreSQL Database
+
+```powershell
+# Start the PostgreSQL container
+docker-compose up -d
+```
+
+This will start the `cine_strapi_db` container in the background.
+
+### 3. Verify Database is Running
+
+```powershell
+# Check if the database container is running
+docker ps
+```
+
+You should see a container named `cine_strapi_db` with status "Up".
+
+### 4. Stop the Database (when needed)
+
+```powershell
+# Stop the PostgreSQL container
+docker-compose down
+```
+
+> **Note**: The database data is persisted in a Docker volume (`cine_strapi_data`), so stopping the container won't delete your data.
+
+## 🏃 Running Strapi
+
 ### `develop`
 
 Start your Strapi application with autoReload enabled. [Learn more](https://docs.strapi.io/dev-docs/cli#strapi-develop)

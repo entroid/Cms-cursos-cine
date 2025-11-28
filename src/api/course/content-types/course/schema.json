@@ -5,7 +5,7 @@
     "singularName": "course",
     "pluralName": "courses",
     "displayName": "Course",
-    "description": "Courses catalog"
+    "description": "Online courses"
   },
   "options": {
     "draftAndPublish": true
@@ -20,22 +20,26 @@
       "type": "uid",
       "targetField": "title"
     },
-    "description": {
-      "type": "richtext"
+    "coverImage": {
+      "type": "media",
+      "multiple": false,
+      "required": false,
+      "allowedTypes": [
+        "images"
+      ]
     },
     "shortDescription": {
       "type": "text",
       "maxLength": 200
     },
-    "thumbnail": {
-      "type": "media",
-      "multiple": false,
-      "allowedTypes": [
-        "images"
-      ]
+    "fullDescription": {
+      "type": "richtext"
     },
-    "price": {
-      "type": "decimal"
+    "instructor": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "api::instructor.instructor",
+      "inversedBy": "courses"
     },
     "level": {
       "type": "enumeration",
@@ -45,26 +49,33 @@
         "advanced"
       ]
     },
-    "duration": {
-      "type": "integer"
+    "estimatedDuration": {
+      "type": "integer",
+      "min": 0
     },
-    "instructor": {
+    "priceUsd": {
+      "type": "integer",
+      "min": 0
+    },
+    "priceArg": {
+      "type": "integer",
+      "min": 0
+    },
+    "tags": {
       "type": "relation",
-      "relation": "manyToOne",
-      "target": "api::instructor.instructor",
+      "relation": "manyToMany",
+      "target": "api::tag.tag",
       "inversedBy": "courses"
     },
     "modules": {
-      "type": "relation",
-      "relation": "oneToMany",
-      "target": "api::module.module",
-      "mappedBy": "course"
+      "type": "component",
+      "component": "course.module",
+      "repeatable": true
     },
-    "categories": {
-      "type": "relation",
-      "relation": "manyToMany",
-      "target": "api::category.category",
-      "inversedBy": "courses"
+    "settings": {
+      "type": "component",
+      "component": "course.settings",
+      "repeatable": false
     },
     "enrollments": {
       "type": "relation",
