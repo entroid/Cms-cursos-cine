@@ -2,7 +2,7 @@ export default {
     routes: [
         {
             method: 'GET',
-            path: '/validate-access',
+            path: '/enrollment/validate-access',
             handler: 'enrollment.validateAccess',
             config: {
                 policies: [],

@@ -10,10 +10,290 @@ Plataforma de cursos online "Cine". Este repositorio contiene el backend CMS (St
 - **Database**: PostgreSQL (via Docker en local)
 - **Frontend**: Next.js (Repositorio separado, consume este API)
 - **Auth**:
-  - **Instructores**: Autenticación nativa de Strapi.
-  - **Alumnos**: Autenticación externa (NextAuth v5) en el FE. Strapi solo guarda referencia `externalUserId`.
+  - **Instructores**: Admin users (`admin::user`) - Acceso vía `/admin`
+  - **Alumnos**: Users & Permissions (`plugin::users-permissions.user`) - Autenticación vía NextAuth en FE, sincronizados en Strapi
 
 - **SocialLink** (shared.social-link): Enlaces sociales del instructor
+
+## Gestión de Usuarios (Alumnos)
+
+**Estrategia:**
+1. **Autenticación**: Los alumnos se autentican en el frontend usando NextAuth v5
+2. **Sincronización**: Durante el registro/login en NextAuth, el sistema crea/actualiza automáticamente un usuario en Strapi usando `plugin::users-permissions.user`
+3. **Modelo**: Los alumnos se guardan en `plugin::users-permissions.user` con:
+   - `email` (único, usado como identificador principal)
+   - `username` (generado del email o proporcionado)
+   - `displayName` (nombre visible, default: "Alumno")
+   - `avatar` (imagen de perfil opcional)
+   - `courses` (relación manyToMany con Course - matriculaciones)
+   - `password` (aleatorio generado, NO usado para login ya que usan NextAuth)
+   - `confirmed: true`, `blocked: false` (configurados automáticamente)
+
+4. **Enrollments**: Los enrollments ahora se relacionan con usuarios vía `enrollment.user` (relación manyToOne)
+   - Método nuevo: `userId` - Relaciona directamente con `plugin::users-permissions.user`
+   - Método legacy: `externalUserId` - Mantenido para retrocompatibilidad
+
+**Flujo de Registro/Login:**
+```
+Usuario → NextAuth (FE) → Callback → Strapi API (/api/auth/local/register o /api/users)
+                                   ↓
+                           Crear/Actualizar User en Strapi
+                                   ↓
+                           Retornar userId a NextAuth
+```
+
+**Validación de Acceso a Cursos:**
+- Endpoint: `GET /api/enrollment/validate-access`
+- Parámetros: `courseId` + (`userId` OR `externalUserId`)
+- Respuesta: `{ hasAccess: boolean, enrollment?, method: 'user' | 'externalUserId' }`
+
+---
+
+## API Endpoints Disponibles
+
+### Autenticación y Usuarios
+
+#### `POST /api/auth/local/register`
+Registro de nuevos usuarios (alumnos).
+
+**Body**:
+```json
+{
+  "username": "string",
+  "email": "string",
+  "password": "string",
+  "displayName": "string (opcional)"
+}
+```
+
+**Response**: 
+```json
+{
+  "jwt": "string",
+  "user": { ... }
+}
+```
+
+**Permisos**: Public
+
+---
+
+#### `POST /api/auth/local`
+Login de usuarios existentes.
+
+**Body**:
+```json
+{
+  "identifier": "email o username",
+  "password": "string"
+}
+```
+
+**Response**:
+```json
+{
+  "jwt": "string",
+  "user": { ... }
+}
+```
+
+**Permisos**: Public
+
+---
+
+#### `GET /POST /api/users/me`
+Obtiene datos de un usuario por email. **Llamado desde backend de Next.js con API Token**.
+
+**Métodos**:
+- `GET` con query param `?email=user@example.com`
+- `POST` con body `{"email": "user@example.com"}` (**Recomendado**)
+
+**Headers**: `Authorization: Bearer <strapi-api-token>`
+
+**Response**:
+```json
+{
+  "id": 1,
+  "username": "string",
+  "email": "string",
+  "displayName": "string",
+  "avatar": {
+    "url": "string"
+  },
+  "courses": [
+    {
+      "id": 1,
+      "title": "string",
+      "slug": "string",
+      "coverImage": { ... },
+      "instructor": { ... },
+      "tags": [ ... ]
+    }
+  ]
+}
+```
+
+**Características**:
+- ✅ **Autenticación**: Strapi API Token (NO user JWT)
+- ✅ **Llamado desde**: Backend de Next.js server-side
+- ✅ Datos sanitizados (sin password, tokens)
+- ✅ Relaciones populadas automáticamente
+- ✅ Incluye cursos matriculados
+
+**Permisos**:
+- ❌ Public → NO
+- ❌ Authenticated (user JWT) → NO
+- ✅ API Token → Sí (con permisos `user.find` y `user.findOne`)
+
+**Ubicación**: `src/extensions/users-permissions/controllers/user.ts`
+
+**Ejemplo de uso**:
+```typescript
+// Next.js backend
+const response = await fetch(`${STRAPI_URL}/api/users/me`, {
+  method: "POST",
+  headers: {
+    "Authorization": `Bearer ${STRAPI_API_TOKEN}`,
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({ email: session.user.email })
+});
+```
+
+---
+
+### Enrollments
+
+#### `GET /api/enrollment/validate-access`
+Valida si un usuario tiene acceso activo a un curso.
+
+**Query Params**:
+- `courseId`: ID del curso (requerido)
+- `userId`: ID del usuario en Strapi (nuevo método)
+- `externalUserId`: ID externo del usuario (método legacy)
+
+**Nota**: Proporcionar `userId` O `externalUserId` (al menos uno)
+
+**Response** (con acceso):
+```json
+{
+  "hasAccess": true,
+  "enrollment": {
+    "id": 1,
+    "status": "active",
+    "enrolledAt": "2025-12-03T10:00:00.000Z",
+    "expiresAt": "2026-12-03T10:00:00.000Z",
+    "course": { ... },
+    "user": {
+      "id": 1,
+      "email": "user@example.com",
+      "avatar": { ... }
+    }
+  },
+  "method": "user"
+}
+```
+
+**Response** (sin acceso):
+```json
+{
+  "hasAccess": false,
+  "message": "No active enrollment found",
+  "searchedBy": "userId: 1"
+}
+```
+
+**Permisos**: Public (para permitir validación desde FE)
+
+**Ubicación**: `src/api/enrollment/controllers/enrollment.ts`
+
+---
+
+### Cursos (Público)
+
+#### `GET /api/courses`
+Lista todos los cursos publicados.
+
+**Query Params**:
+- `populate`: Relaciones a popular (ej: `instructor,coverImage,tags`)
+- `filters`: Filtros (ej: `filters[slug][$eq]=intro-cinema`)
+- `sort`: Ordenamiento (ej: `createdAt:desc`)
+
+**Permisos**: Public
+
+---
+
+#### `GET /api/courses/:id`
+Obtiene un curso específico por ID.
+
+**Permisos**: Public
+
+---
+
+### Integración con NextAuth
+
+Para integrar estos endpoints con NextAuth en el frontend:
+
+**1. Sincronizar usuarios al login/registro**:
+```typescript
+// En [...nextauth]/route.ts - callback signIn
+async signIn({ user, account }) {
+  if (account?.provider === "google") {
+    // Crear usuario en Strapi si no existe
+    const response = await fetch(
+      `${STRAPI_URL}/api/users?filters[email][$eq]=${user.email}`,
+      { headers: { Authorization: `Bearer ${API_TOKEN}` }}
+    );
+    
+    if (response.data.length === 0) {
+      await fetch(`${STRAPI_URL}/api/users`, {
+        method: "POST",
+        headers: { 
+          Authorization: `Bearer ${API_TOKEN}`,
+          "Content-Type": "application/json" 
+        },
+        body: JSON.stringify({
+          username: user.email.split("@")[0],
+          email: user.email,
+          displayName: user.name,
+          password: crypto.randomUUID(),
+          confirmed: true
+        })
+      });
+    }
+  }
+  return true;
+}
+```
+
+**2. Obtener datos de Strapi en el JWT**:
+```typescript
+// En [...nextauth]/route.ts - callback jwt
+async jwt({ token, user }) {
+  if (user?.strapiToken) {
+    const response = await fetch(`${STRAPI_URL}/api/users/me`, {
+      headers: { Authorization: `Bearer ${user.strapiToken}` }
+    });
+    token.strapiUser = await response.json();
+  }
+  return token;
+}
+```
+
+**3. Exponer en sesión**:
+```typescript
+// En [...nextauth]/route.ts - callback session
+async session({ session, token }) {
+  session.strapiUser = token.strapiUser;
+  session.strapiToken = token.strapiToken;
+  return session;
+}
+```
+
+Ver archivo `nextauth_integration_guide.md` para guía completa.
+
+---
+
 
 ## Gestión de Usuarios (Instructores)
 **Estrategia MVP**:

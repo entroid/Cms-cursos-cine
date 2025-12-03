@@ -51,11 +51,12 @@ export interface CourseModule extends Struct.ComponentSchema {
   };
   attributes: {
     description: Schema.Attribute.Text;
-    lessons: Schema.Attribute.Component<'course.lesson', true>;
+    lessons: Schema.Attribute.Component<'course.lesson', true> &
+      Schema.Attribute.Required;
     order: Schema.Attribute.Integer &
       Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<1>;
-    title: Schema.Attribute.String & Schema.Attribute.Required;
+    title: Schema.Attribute.String;
   };
 }
 

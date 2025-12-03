@@ -1,4 +1,5 @@
 import { Core } from '@strapi/strapi';
+// Force reload
 
 export default {
   /**
@@ -29,6 +30,9 @@ export default {
         'api::instructor.instructor.find',
         'api::instructor.instructor.findOne',
         'api::enrollment.enrollment.validateAccess', // Custom endpoint
+        // Authentication endpoints for public access
+        'plugin::users-permissions.auth.callback',   // Login endpoint
+        'plugin::users-permissions.user.register',   // Registration endpoint
       ];
 
 
@@ -42,12 +46,15 @@ export default {
           });
 
           if (!existing) {
+            strapi.log.info(`Creating permission: ${action}`);
             await strapi.query('plugin::users-permissions.permission').create({
               data: {
                 action,
                 role: publicRole.id,
               },
             });
+          } else {
+            strapi.log.info(`Permission already exists: ${action}`);
           }
         })
       );

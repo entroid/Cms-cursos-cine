@@ -1,37 +1,37 @@
 {
-    "kind": "collectionType",
-    "collectionName": "tags",
-    "info": {
-        "singularName": "tag",
-        "pluralName": "tags",
-        "displayName": "Tag",
-        "description": "Course tags for categorization"
+  "kind": "collectionType",
+  "collectionName": "tags",
+  "info": {
+    "singularName": "tag",
+    "pluralName": "tags",
+    "displayName": "Tag",
+    "description": "Course tags for categorization"
+  },
+  "options": {
+    "draftAndPublish": false
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "name": {
+      "type": "string",
+      "required": true,
+      "unique": true
     },
-    "options": {
-        "draftAndPublish": false
+    "slug": {
+      "type": "uid",
+      "targetField": "name"
     },
-    "pluginOptions": {},
-    "attributes": {
-        "name": {
-            "type": "string",
-            "required": true,
-            "unique": true
-        },
-        "slug": {
-            "type": "uid",
-            "targetField": "name"
-        },
-        "description": {
-            "type": "text"
-        },
-        "color": {
-            "type": "string"
-        },
-        "courses": {
-            "type": "relation",
-            "relation": "manyToMany",
-            "target": "api::course.course",
-            "mappedBy": "tags"
-        }
+    "description": {
+      "type": "text"
+    },
+    "color": {
+      "type": "string"
+    },
+    "courses": {
+      "type": "relation",
+      "relation": "manyToMany",
+      "target": "api::course.course",
+      "mappedBy": "tags"
     }
+  }
 }

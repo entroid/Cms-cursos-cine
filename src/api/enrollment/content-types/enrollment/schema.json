@@ -12,9 +12,14 @@
   },
   "pluginOptions": {},
   "attributes": {
+    "user": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user"
+    },
     "externalUserId": {
       "type": "string",
-      "required": true
+      "required": false
     },
     "status": {
       "type": "enumeration",

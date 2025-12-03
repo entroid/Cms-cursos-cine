@@ -1,28 +1,29 @@
 {
-    "collectionName": "components_course_modules",
-    "info": {
-        "displayName": "Module",
-        "icon": "folder",
-        "description": "Course module containing lessons"
+  "collectionName": "components_course_modules",
+  "info": {
+    "displayName": "Module",
+    "icon": "folder",
+    "description": "Course module containing lessons"
+  },
+  "options": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": false
     },
-    "options": {},
-    "attributes": {
-        "title": {
-            "type": "string",
-            "required": true
-        },
-        "order": {
-            "type": "integer",
-            "required": true,
-            "default": 1
-        },
-        "description": {
-            "type": "text"
-        },
-        "lessons": {
-            "type": "component",
-            "repeatable": true,
-            "component": "course.lesson"
-        }
+    "order": {
+      "type": "integer",
+      "required": true,
+      "default": 1
+    },
+    "description": {
+      "type": "text"
+    },
+    "lessons": {
+      "type": "component",
+      "component": "course.lesson",
+      "repeatable": true,
+      "required": true
     }
+  }
 }
