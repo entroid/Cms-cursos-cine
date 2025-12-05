@@ -510,7 +510,7 @@ export interface ApiCourseCourse extends Struct.CollectionTypeSchema {
 export interface ApiEnrollmentEnrollment extends Struct.CollectionTypeSchema {
   collectionName: 'enrollments';
   info: {
-    description: 'Student enrollments';
+    description: 'Student course enrollments with progress tracking';
     displayName: 'Enrollment';
     pluralName: 'enrollments';
     singularName: 'enrollment';
@@ -519,13 +519,22 @@ export interface ApiEnrollmentEnrollment extends Struct.CollectionTypeSchema {
     draftAndPublish: false;
   };
   attributes: {
+    certificateIssued: Schema.Attribute.Boolean &
+      Schema.Attribute.DefaultTo<false>;
+    completedAt: Schema.Attribute.DateTime;
+    completedLessons: Schema.Attribute.JSON;
     course: Schema.Attribute.Relation<'manyToOne', 'api::course.course'>;
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    currentLesson: Schema.Attribute.String;
     enrolledAt: Schema.Attribute.DateTime;
+    enrollmentStatus: Schema.Attribute.Enumeration<
+      ['not-started', 'in-progress', 'completed']
+    > &
+      Schema.Attribute.DefaultTo<'not-started'>;
     expiresAt: Schema.Attribute.DateTime;
-    externalUserId: Schema.Attribute.String;
+    lastAccessedAt: Schema.Attribute.DateTime;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<
       'oneToMany',
@@ -536,9 +545,28 @@ export interface ApiEnrollmentEnrollment extends Struct.CollectionTypeSchema {
     paymentCurrency: Schema.Attribute.String &
       Schema.Attribute.DefaultTo<'USD'>;
     paymentId: Schema.Attribute.String;
-    paymentProvider: Schema.Attribute.Enumeration<['stripe', 'mercadopago']>;
+    paymentProvider: Schema.Attribute.Enumeration<
+      ['stripe', 'mercadopago', 'free']
+    > &
+      Schema.Attribute.DefaultTo<'free'>;
+    progressPercentage: Schema.Attribute.Decimal &
+      Schema.Attribute.SetMinMax<
+        {
+          max: 100;
+          min: 0;
+        },
+        number
+      > &
+      Schema.Attribute.DefaultTo<0>;
     publishedAt: Schema.Attribute.DateTime;
-    status: Schema.Attribute.Enumeration<['active', 'expired', 'cancelled']>;
+    totalTimeSpent: Schema.Attribute.Integer &
+      Schema.Attribute.SetMinMax<
+        {
+          min: 0;
+        },
+        number
+      > &
+      Schema.Attribute.DefaultTo<0>;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
@@ -1102,7 +1130,7 @@ export interface PluginUsersPermissionsUser
     password: Schema.Attribute.Password &
       Schema.Attribute.Private &
       Schema.Attribute.SetMinMaxLength<{
-        minLength: 6;
+        minLength: 8;
       }>;
     provider: Schema.Attribute.String;
     publishedAt: Schema.Attribute.DateTime;

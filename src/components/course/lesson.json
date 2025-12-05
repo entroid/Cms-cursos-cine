@@ -1,39 +1,49 @@
 {
-    "collectionName": "components_course_lessons",
-    "info": {
-        "displayName": "Lesson",
-        "icon": "play",
-        "description": "Individual lesson within a module"
-    },
-    "options": {},
-    "attributes": {
-        "title": {
-            "type": "string",
-            "required": true
-        },
-        "videoUrl": {
-            "type": "string"
-        },
-        "textContent": {
-            "type": "richtext"
-        },
-        "duration": {
-            "type": "integer",
-            "min": 0
-        },
-        "freePreview": {
-            "type": "boolean",
-            "default": false
-        },
-        "order": {
-            "type": "integer",
-            "required": true,
-            "default": 1
-        },
-        "resources": {
-            "type": "component",
-            "repeatable": true,
-            "component": "course.lesson-resource"
+  "collectionName": "components_course_lessons",
+  "info": {
+    "displayName": "Lesson",
+    "icon": "play",
+    "description": "Individual lesson within a module"
+  },
+  "options": {},
+  "attributes": {
+    "lessonId": {
+      "type": "string",
+      "required": false,
+      "unique": false,
+      "pluginOptions": {
+        "content-manager": {
+          "editable": false
         }
+      }
+    },
+    "title": {
+      "type": "string",
+      "required": true
+    },
+    "videoUrl": {
+      "type": "string"
+    },
+    "textContent": {
+      "type": "richtext"
+    },
+    "duration": {
+      "type": "integer",
+      "min": 0
+    },
+    "freePreview": {
+      "type": "boolean",
+      "default": false
+    },
+    "order": {
+      "type": "integer",
+      "required": true,
+      "default": 1
+    },
+    "resources": {
+      "type": "component",
+      "component": "course.lesson-resource",
+      "repeatable": true
     }
+  }
 }

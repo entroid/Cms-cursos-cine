@@ -87,6 +87,21 @@ yarn strapi deploy
 
 Feel free to check out the [Strapi GitHub repository](https://github.com/strapi/strapi). Your feedback and contributions are welcome!
 
+## 📖 API Documentation
+
+For detailed information about the custom API endpoints, see:
+
+- **[API Reference](./docs/API_REFERENCE.md)** - Complete reference for Enrollment endpoints, authentication, and schema.
+
+### Quick Links
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/api/enrollments` | GET | Get user's enrollments |
+| `/api/enrollments/:id` | PUT | Update progress |
+| `/api/enrollments/continue-watching` | GET | Get last active course |
+| `/api/enrollments/validate-access` | GET | Check course access |
+
 ## ✨ Community
 
 - [Discord](https://discord.strapi.io) - Come chat with the Strapi community including the core team.

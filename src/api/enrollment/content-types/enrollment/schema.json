@@ -1,62 +1,87 @@
 {
-  "kind": "collectionType",
-  "collectionName": "enrollments",
-  "info": {
-    "singularName": "enrollment",
-    "pluralName": "enrollments",
-    "displayName": "Enrollment",
-    "description": "Student enrollments"
-  },
-  "options": {
-    "draftAndPublish": false
-  },
-  "pluginOptions": {},
-  "attributes": {
-    "user": {
-      "type": "relation",
-      "relation": "manyToOne",
-      "target": "plugin::users-permissions.user"
+    "kind": "collectionType",
+    "collectionName": "enrollments",
+    "info": {
+        "singularName": "enrollment",
+        "pluralName": "enrollments",
+        "displayName": "Enrollment",
+        "description": "Student course enrollments with progress tracking"
     },
-    "externalUserId": {
-      "type": "string",
-      "required": false
+    "options": {
+        "draftAndPublish": false
     },
-    "status": {
-      "type": "enumeration",
-      "enum": [
-        "active",
-        "expired",
-        "cancelled"
-      ]
-    },
-    "enrolledAt": {
-      "type": "datetime"
-    },
-    "expiresAt": {
-      "type": "datetime"
-    },
-    "paymentProvider": {
-      "type": "enumeration",
-      "enum": [
-        "stripe",
-        "mercadopago"
-      ]
-    },
-    "paymentId": {
-      "type": "string"
-    },
-    "paymentAmount": {
-      "type": "decimal"
-    },
-    "paymentCurrency": {
-      "type": "string",
-      "default": "USD"
-    },
-    "course": {
-      "type": "relation",
-      "relation": "manyToOne",
-      "target": "api::course.course",
-      "inversedBy": "enrollments"
+    "pluginOptions": {},
+    "attributes": {
+        "user": {
+            "type": "relation",
+            "relation": "manyToOne",
+            "target": "plugin::users-permissions.user"
+        },
+        "course": {
+            "type": "relation",
+            "relation": "manyToOne",
+            "target": "api::course.course"
+        },
+        "enrollmentStatus": {
+            "type": "enumeration",
+            "enum": [
+                "not-started",
+                "in-progress",
+                "completed"
+            ],
+            "default": "not-started"
+        },
+        "progressPercentage": {
+            "type": "decimal",
+            "min": 0,
+            "max": 100,
+            "default": 0
+        },
+        "currentLesson": {
+            "type": "string"
+        },
+        "completedLessons": {
+            "type": "json"
+        },
+        "enrolledAt": {
+            "type": "datetime"
+        },
+        "lastAccessedAt": {
+            "type": "datetime"
+        },
+        "completedAt": {
+            "type": "datetime"
+        },
+        "totalTimeSpent": {
+            "type": "integer",
+            "min": 0,
+            "default": 0
+        },
+        "certificateIssued": {
+            "type": "boolean",
+            "default": false
+        },
+        "paymentProvider": {
+            "type": "enumeration",
+            "enum": [
+                "stripe",
+                "mercadopago",
+                "free"
+            ],
+            "default": "free"
+        },
+        "paymentId": {
+            "type": "string"
+        },
+        "paymentAmount": {
+            "type": "decimal"
+        },
+        "paymentCurrency": {
+            "type": "string",
+            "default": "USD"
+        },
+        "expiresAt": {
+            "type": "datetime"
+        }
     }
-  }
 }

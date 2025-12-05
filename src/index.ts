@@ -61,5 +61,46 @@ export default {
 
       strapi.log.info('Public permissions configured via bootstrap');
     }
+
+    // Set Authenticated permissions
+    const authenticatedRole = await strapi
+      .query('plugin::users-permissions.role')
+      .findOne({ where: { type: 'authenticated' } });
+
+    if (authenticatedRole) {
+      const authenticatedPermissions = [
+        'api::enrollment.enrollment.find',
+        'api::enrollment.enrollment.findOne',
+        'api::enrollment.enrollment.update',
+        'api::enrollment.enrollment.continueWatching',
+        'api::course.course.find',
+        'api::course.course.findOne',
+      ];
+
+      await Promise.all(
+        authenticatedPermissions.map(async (action) => {
+          const existing = await strapi.query('plugin::users-permissions.permission').findOne({
+            where: {
+              action,
+              role: authenticatedRole.id,
+            },
+          });
+
+          if (!existing) {
+            strapi.log.info(`Creating authenticated permission: ${action}`);
+            await strapi.query('plugin::users-permissions.permission').create({
+              data: {
+                action,
+                role: authenticatedRole.id,
+              },
+            });
+          } else {
+            strapi.log.info(`Authenticated permission already exists: ${action}`);
+          }
+        })
+      );
+
+      strapi.log.info('Authenticated permissions configured via bootstrap');
+    }
   },
 };

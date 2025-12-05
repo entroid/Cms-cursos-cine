@@ -16,6 +16,12 @@ export interface CourseLesson extends Struct.ComponentSchema {
         number
       >;
     freePreview: Schema.Attribute.Boolean & Schema.Attribute.DefaultTo<false>;
+    lessonId: Schema.Attribute.String &
+      Schema.Attribute.SetPluginOptions<{
+        'content-manager': {
+          editable: false;
+        };
+      }>;
     order: Schema.Attribute.Integer &
       Schema.Attribute.Required &
       Schema.Attribute.DefaultTo<1>;
