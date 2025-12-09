@@ -35,6 +35,9 @@
     "fullDescription": {
       "type": "richtext"
     },
+    "urlPresentacion": {
+      "type": "string"
+    },
     "instructor": {
       "type": "relation",
       "relation": "manyToOne",

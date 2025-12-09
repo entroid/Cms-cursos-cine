@@ -81,6 +81,7 @@ GET /api/courses/{id}?populate=deep
 | `coverImage` | Media | Course thumbnail |
 | `shortDescription` | Text | Max 200 chars |
 | `fullDescription` | Richtext | Full HTML description |
+| `urlPresentacion` | String | Course presentation video URL (optional) |
 | `instructor` | Relation | Instructor reference |
 | `level` | Enum | `beginner`, `intermediate`, `advanced` |
 | `estimatedDuration` | Integer | Total minutes (auto-calculated) |

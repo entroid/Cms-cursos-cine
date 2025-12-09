@@ -500,6 +500,7 @@ export interface ApiCourseCourse extends Struct.CollectionTypeSchema {
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    urlPresentacion: Schema.Attribute.String;
     users: Schema.Attribute.Relation<
       'manyToMany',
       'plugin::users-permissions.user'
